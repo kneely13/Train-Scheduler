@@ -1,4 +1,12 @@
+body {
+    width: 95%;
+}
+
 .jumbotron {
     background-color: aliceblue;
     
+}
+
+form {
+    border: solid black 5px;
 }
