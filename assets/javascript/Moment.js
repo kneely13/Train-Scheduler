@@ -1,6 +1,6 @@
 
     
-// Initialize Firebase
+// 1.  Initialize Firebase
     var config = {
         apiKey: "AIzaSyCnfg1IruY85LP-1X5s1eT34no4z8JprrU",
         authDomain: "train-scheduler-aec90.firebaseapp.com",
@@ -12,27 +12,123 @@
 
     firebase.initializeApp(config);
 
+    var database = firebase.database();
+    var format = dateFns.format();
 
 
+// 2. create button for adding new employees - then update the html + update the database
+    //Button for adding trains
+    $("#submit").on("click", function(event){
+        event.preventDefault();
+
+        //grab user input
+        var trainName = $("#input-name").val().trim();
+        var trainDestination = $("#input-destination").val().trim();
+        var trainDepartTime = $("#input-departTime").val().trim();
+        var trainFrequency = $("#input-frequency").val().trim();
+
+        // Create local "temporary" object for holding train data
+        var newTr = {
+            name: trainName,
+            destination: trainDestination,
+            time: trainDepartTime,
+            frequency: trainFrequency
+        }
+
+        // Uploads train data to the database
+        database.ref().push(newTr);
 
 
+        // Logs everything to console
+        console.log(newTr.name);
+        console.log(newTr.destination);
+        console.log(newTr.time);
+        console.log(newTr.frequency);
+
+        alert("Train successfully added");
 
 
+        // Clears all of the text-boxes
+        $("#input-name").val("");
+        $("#input-destination").val("");
+        $("#input-departTime").val("");
+        $("#input-frequency").val("");
+
+    })
 
 
+// 3. Create a way to retrieve employees from the employee database.
+
+    
+    database.ref().on("child_added", function(childSnapshot) {
+    
+    console.log(childSnapshot.val());
+  
+    // Store everything into a variable.
+    var trainName = childSnapshot.val().name;
+    var trainDestination = childSnapshot.val().destination;
+    var trainDepartTime = childSnapshot.val().time;
+    var trainFrequency = childSnapshot.val().frequency;
+  
+    // Employee Info
+    console.log(trainName);
+    console.log(trainDestination);
+    console.log(trainDepartTime);
+    console.log(trainFrequency);
+  
+    // Assumptions
+    var trainFrequency = 3;
+
+    // Time is 3:30 AM
+    var trainDepartTime = dateFns.setHours(dateFns.setMinutes(new Date(), 30), 03);
+    var format = dateFns.format
+
+    console.log(format(trainDepartTime, 'HH:mm'))
 
 
+    // First Time (pushed back 1 year to make sure it comes before current time)
+    var trainDepartTimeConverted = format(dateFns.subYears(trainDepartTime, 1), 'HH:mm');
+    console.log(trainDepartTimeConverted);
 
+    // Current Time
+    var currentTime = new Date();
+    console.log("CURRENT TIME: " + format(currentTime, "hh:mm"));
 
+    // Difference between the times
+    var diffTime = dateFns.differenceInMinutes(new Date(), dateFns.subYears(trainDepartTime, 1));
+    console.log("DIFFERENCE IN TIME: " + diffTime);
 
+    // Time apart (remainder)
+    var trainRemainder = diffTime % trainFrequency;
+    console.log(trainRemainder);
 
+    // Minute Until Train
+    var trainMinutesTillTrain = trainFrequency - trainRemainder;
+    console.log("MINUTES TILL TRAIN: " + trainMinutesTillTrain);
 
+    // Next Train
+    var nextTrain = dateFns.addMinutes(new Date(), trainMinutesTillTrain);
+    console.log("ARRIVAL TIME: " + format(nextTrain, "hh:mm"));
 
+    var trainDepartTime = dateFns.differenceInMonths(new Date(), trainDepartTime)
+  console.log(trainDepartTime);
 
+//   // Calculate the total billed rate
+//   var empBilled = empMonths * empRate;
+//   console.log(empBilled);
 
+  // Create the new row
+  var newTrain = $("<tr>").append(
+    $("<td>").text(trainName),
+    $("<td>").text(trainDestination),
+    $("<td>").text(trainDepartTime),
+    $("<td>").text(trainFrequency)
+  );
 
-
-
+  // Append the new row to the table
+  $("#train-table > tbody").append(newRow);
+});
+    
 
 
 
@@ -73,34 +169,4 @@
       
       
       
-      // Assumptions
-      var tFrequency = 3;
-
-      // Time is 3:30 AM
-      var firstTime = dateFns.setHours(dateFns.setMinutes(new Date(), 30), 03);
-      var format = dateFns.format
-
-      console.log(format(firstTime, 'HH:mm'))
-      // First Time (pushed back 1 year to make sure it comes before current time)
-      var firstTimeConverted = format(dateFns.subYears(firstTime, 1), 'HH:mm');
-      console.log(firstTimeConverted);
-
-      // Current Time
-      var currentTime = new Date();
-      console.log("CURRENT TIME: " + format(currentTime, "hh:mm"));
-
-      // Difference between the times
-      var diffTime = dateFns.differenceInMinutes(new Date(), dateFns.subYears(firstTime, 1));
-      console.log("DIFFERENCE IN TIME: " + diffTime);
-
-      // Time apart (remainder)
-      var tRemainder = diffTime % tFrequency;
-      console.log(tRemainder);
-
-      // Minute Until Train
-      var tMinutesTillTrain = tFrequency - tRemainder;
-      console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
-
-      // Next Train
-      var nextTrain = dateFns.addMinutes(new Date(), tMinutesTillTrain);
-      console.log("ARRIVAL TIME: " + format(nextTrain, "hh:mm"));
+      
